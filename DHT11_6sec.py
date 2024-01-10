@@ -42,6 +42,7 @@ def collect_data(channel):
 
 try:
     GPIO.setmode(GPIO.BCM)
+    channel = 18  # チャンネルを定義
 
     while True:
         data = collect_data(channel)
