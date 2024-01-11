@@ -85,10 +85,16 @@ def loop():
 def destroy():
     pass
 
-def send_line_notify(message):
+def send_line_notify(message, package_id=None, sticker_id=None):
     line_notify_api = 'https://notify-api.line.me/api/notify'
     headers = {'Authorization': 'Bearer ' + LINE_NOTIFY_TOKEN}
     payload = {'message': message}
+    
+    # スタンプの情報が指定されている場合は追加
+    if package_id and sticker_id:
+        payload['stickerPackageId'] = 11538
+        payload['stickerId'] = 51626528
+    
     requests.post(line_notify_api, headers=headers, data=payload)
 
 if __name__ == "__main__":
