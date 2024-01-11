@@ -3,31 +3,26 @@
 import os
 import time
 import pickle
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
+from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
 SPREADSHEET_ID = '16rgnCIIEmjWwqkg_9WjHKy-hde8Atj_pVLx9f6Y-iJs'  # ここにGoogle SheetsのスプレッドシートのIDを入力
+SERVICE_ACCOUNT_FILE = 'elemental-axle-404504-ac76119fad9c'  # サービスアカウントのJSONファイルへのパス
 
 def authenticate_google_sheets():
     creds = None
-    # ユーザーの認証情報を取得
+    # サービスアカウントを使用した認証
     if os.path.exists('token.pickle'):
         with open('token.pickle', 'rb') as token:
             creds = pickle.load(token)
-    # 認証情報がないか期限切れの場合はユーザーに認証を求める
     if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file('elemental-axle-404504-ac76119fad9c.json', SCOPES)
-            creds = flow.run_local_server(port=0)
-        # 認証情報を保存
-        with open('token.pickle', 'wb') as token:
-            pickle.dump(creds, token)
+        try:
+            creds = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+        except Exception as e:
+            print('Error authenticating with Service Account:', e)
+            creds = None
     return creds
 
 def write_to_google_sheets(temperature_data):
